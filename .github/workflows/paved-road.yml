@@ -57,28 +57,28 @@ jobs:
           push: true
           tags: ${{ env.IMAGE }}
 
-deploy-dev
-  needs: build-and-push
-  if: github.event_name == 'push'
-  runs-on: ubuntu-latest
-  permissions:
-    id-token: write
-    contents: read
-  steps:
-    - name: Azure login (OIDC)
-      uses: azure/login@v2
-      with:
-        client-id: ${{ vars.AZURE_CLIENT_ID }}
-        tenant-id: ${{ vars.AZURE_TENANT_ID }}
-        subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-    - name: Deploy to Container Apps (dev)
-      uses: azure/cli@v2
-      with:
-        inlineScript: |
-          az extension add --name containerapp --upgrade
-          az containerapp up \
-          --name speccheck-api \
-          --resource-group speccheck-dev \
-          --environment speccheck-dev-cae \
-          --image ${{ env.IMAGE }} \
-          --ingress external --target-port 8000
+  deploy-dev:
+    needs: build-and-push
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Deploy to Container Apps (dev)
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az extension add --name containerapp --upgrade
+            az containerapp up \
+              --name speccheck-api \
+              --resource-group speccheck-dev \
+              --environment speccheck-dev-cae \
+              --image ${{ env.IMAGE }} \
+              --ingress external --target-port 8000
